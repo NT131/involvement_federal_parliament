@@ -2,6 +2,6 @@ __pycache__/
 involvement_federal_parliament_env/
 code/.ipynb_checkpoints/
 .spyproject/
-data/
+# data/
 dash/involvement_federal_parliament.log
 
