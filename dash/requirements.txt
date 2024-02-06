@@ -1,0 +1,6 @@
+# name environment: involvement_federal_parliament_env
+numpy
+pandas
+dash
+dash-bootstrap-components
+gunicorn
