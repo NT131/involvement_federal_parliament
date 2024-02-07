@@ -65,7 +65,7 @@ app.layout = html.Div([
 		className='footer', # Assign a class name for styling
 		children=[
 			"De code en data voor deze toepassing is beschikbaar op ",
-			html.A("GitHub", href="https://github.com/NT131/attendance_members_flemish_parliament")
+			html.A("GitHub", href="https://github.com/NT131/involvement_federal_parliament")
 		]
 	),
 ])
