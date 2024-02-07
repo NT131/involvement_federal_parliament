@@ -12,7 +12,7 @@ Group=nielstack
 #[path/to/app]
 WorkingDirectory=/home/nielstack/projects/erpohk/visualisations/involvement_federal_parliament/dash
 #[/path/to/your/virtualenv/bin/gunicorn] -w 3 -b [IP-address with port] + [file_name]:[server_name] --log-file=/path/to/logfile.log
-ExecStart=/home/nielstack/projects/erpohk/visualisations/involvement_federal_parliament/dash/involvement_federal_parliament/bin/gunicorn -w 7 -b 0.0.0.0:5002 federal_involvement_integrated:application --log-file=/home/nielstack/projects/erpohk/visualisations/involvement_federal_parliament/dash/involvement_federal_parliament.log
+ExecStart=/home/nielstack/projects/erpohk/visualisations/involvement_federal_parliament/dash/involvement_federal_parliament_env/bin/gunicorn -w 7 -b 0.0.0.0:5004 federal_involvement_integrated:application --log-file=/home/nielstack/projects/erpohk/visualisations/involvement_federal_parliament/dash/involvement_federal_parliament.log
 StandardOutput=journal
 StandardError=journal
 
