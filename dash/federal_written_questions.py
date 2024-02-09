@@ -206,10 +206,11 @@ layout = html.Div(
                                 ),
                                 dcc.Dropdown(
                                     id="federal-minister-filter",
+                                    # Sort ministers alphabetically
                                     options=[
                                         {'label': 'Alle', 'value': 'Alle'},
                                         ] + [
-                                        {'label': minister, 'value': minister} for minister in federal_written_questions_df['Minister'].unique()
+                                        {'label': minister, 'value': minister} for minister in sorted(federal_written_questions_df['Minister'].unique())
                                     ],
                                     multi=False,
                                     value='Alle',
@@ -246,6 +247,7 @@ layout = html.Div(
                                 {'label': 'Parlementslid', 'value': 'Parlementslid'},
                                 {'label': 'Partij', 'value': 'Partij parlementslid'},
                                 {'label': 'Minister', 'value': 'Minister'},
+                                {'label': 'Minister (bevoegdheden)', 'value': 'Minister (bevoegdheden)'},
                             ],
                             value='Parlementslid', # Default value
                             style={'width': '50%'}
@@ -434,6 +436,29 @@ def update_chart(selected_axis, federal_written_questions_df_input):
         
         # Reset height of entire graph (enlarged for 'vraagsteller)
         fig.update_layout(height=500)
+        
+    elif selected_axis == 'Minister (bevoegdheden)':
+        grouped_data = federal_written_questions_df_input['Minister (bevoegdheden)'].value_counts().reset_index()
+        grouped_data.columns = ['Minister (bevoegdheden)', 'Aantal vragen']
+        # grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
+        fig = px.bar(grouped_data,
+                     # x='Minister (bevoegdheden)',
+                     # y='Aantal vragen',
+                     x='Aantal vragen',
+                     y='Minister (bevoegdheden)',
+                     # color='Partij minister',
+                     # color_discrete_map=minister_colors,
+                     # labels={'x': 'Minister (bevoegdheden)', 'y': 'Aantal vragen'},
+                     labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegdheden)'},
+                     title='Vragen aan ministers')
+        # # Update x-axis to reflect the sorted order
+        # fig.update_xaxes(categoryorder='total descending')
+        
+        # Update y-axis to reflect the sorted order
+        fig.update_yaxes(categoryorder='total ascending')
+        
+        # Reset height of entire graph (enlarged for 'vraagsteller)
+        fig.update_layout(height=1200)
         
     elif selected_axis == 'Partij parlementslid':
         grouped_data = federal_written_questions_df_input['Partij parlementslid'].value_counts().reset_index()
