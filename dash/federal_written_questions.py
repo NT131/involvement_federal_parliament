@@ -481,7 +481,8 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                      custom_data = ['Minister', 'Partij minister']   
                      )
         
-        fig.update_yaxes(categoryorder='total ascending')
+        fig.update_yaxes(title='Ministers (bevoegdheden)', # Modify label of y-axis
+                         categoryorder='total ascending') # Modify sorting order
         fig.update_layout(height=1200)
         
         # Update hover template with customdata
