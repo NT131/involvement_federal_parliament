@@ -392,8 +392,10 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                       y='Parlementslid',
                       color='Partij parlementslid',
                       color_discrete_map=party_colors,
-                      labels={'x': 'Parlementslid', 'y': 'Aantal vragen'},
-                      title='Vragen per parlementslid')
+                      labels={'x': 'Aantal vragen', 'y': 'Parlementslid'},
+                      title='Vragen per parlementslid',
+                      custom_data = ['Partij parlementslid']
+                      )
         
         
         # Update y-axis to reflect the sorted order
@@ -412,6 +414,11 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                 dtick=1  # Set dtick to 1 to show every value on the y-axis
             )
         )
+        
+        # Update hover template with customdata
+        fig.update_traces(
+            hovertemplate="<b>%{y}</b> (%{customdata[0]}) stelde %{x} vragen<extra></extra>",
+        )             
         
         # # Adjust the space between y-axis labels and the axis
         # fig.update_layout(
@@ -434,12 +441,19 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                      color='Partij minister',
                      color_discrete_map=minister_colors,
                      labels={'x': 'Minister', 'y': 'Aantal vragen'},
-                     title='Vragen aan ministers')
+                     title='Vragen aan ministers',
+                     custom_data = ['Partij minister']
+                     )
         # Update x-axis to reflect the sorted order
         fig.update_xaxes(categoryorder='total descending')
         
         # Reset height of entire graph (enlarged for 'vraagsteller)
         fig.update_layout(height=500)
+        
+        # Update hover template with customdata
+        fig.update_traces(
+            hovertemplate="<b>%{x}</b> (%{customdata[0]}) ontving %{y} vragen<extra></extra>",
+        )
         
     elif selected_axis == 'Minister (bevoegdheden)':
         grouped_data = federal_written_questions_df_input['Minister (bevoegdheden)'].value_counts().reset_index()
@@ -464,8 +478,7 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                      color_discrete_map=minister_colors,
                      labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegheden + naam)'},
                      title='Vragen aan ministers',
-                     custom_data = ['Minister', 'Partij minister']
-                     
+                     custom_data = ['Minister', 'Partij minister']   
                      )
         
         fig.update_yaxes(categoryorder='total ascending')
@@ -486,10 +499,16 @@ def update_chart(selected_axis, federal_written_questions_df_input):
                      color='Partij parlementslid',
                      color_discrete_map=party_colors,
                      labels={'x': 'Partij parlementslid', 'y': 'Aantal vragen'},
-                     title='Vragen gesteld per partij')
+                     title='Vragen gesteld per partij',
+                     )
         
         # Reset height of entire graph (enlarged for 'vraagsteller)
         fig.update_layout(height=500)
+        
+        # Update hover template with customdata
+        fig.update_traces(
+            hovertemplate="Leden van <b>%{x}</b> stelden samen %{y} vragen<extra></extra>",
+        )  
         
     # elif selected_axis == 'thema':
     #     grouped_data = federal_written_questions_df_input['thema'].value_counts().reset_index()
