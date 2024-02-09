@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.express as px
 # import plotly.graph_objects as go
 
-# import pickle
+import pickle
 
 # from attendance_statistics import get_party
 
@@ -22,6 +22,10 @@ federal_written_questions_df = pd.read_pickle('../data/federal_details_questions
 
 # Create a default value for amount_meetings, i.e. relevant meetings
 federal_amount_questions = len(federal_written_questions_df)  # Set amount of all meetings as default, it will be updated in the callback
+
+# Load information about parties
+with open('../data/minister_competences_2_names_dict.pkl', 'rb') as file:
+    minister_competences_2_names_dict = pickle.load(file)
 
 # # Load information about parties
 # with open('../data/fracties.pkl', 'rb') as file:
@@ -440,25 +444,38 @@ def update_chart(selected_axis, federal_written_questions_df_input):
     elif selected_axis == 'Minister (bevoegdheden)':
         grouped_data = federal_written_questions_df_input['Minister (bevoegdheden)'].value_counts().reset_index()
         grouped_data.columns = ['Minister (bevoegdheden)', 'Aantal vragen']
-        # grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
+        
+        grouped_data['Minister'] = grouped_data['Minister (bevoegdheden)'].map(minister_competences_2_names_dict)
+        grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
+        
+        # Create a new column combining 'Minister (bevoegdheden)' and 'Minister'
+        grouped_data['Minister (bevoegheden + naam)'] = grouped_data['Minister (bevoegdheden)'] + ' (' + grouped_data['Minister'] + ')'
+        
+        # # Construct hover text using list comprehension
+        # hover_text = [
+        #     f"<b>{minister}</b> ({partij}) ontving {aantal} aantal vragen<extra></extra>"
+        #     for minister, partij, aantal in zip(grouped_data['Minister (bevoegheden + naam)'], grouped_data['Partij minister'], grouped_data['Aantal vragen'])
+        # ]
+        
         fig = px.bar(grouped_data,
-                     # x='Minister (bevoegdheden)',
-                     # y='Aantal vragen',
                      x='Aantal vragen',
-                     y='Minister (bevoegdheden)',
-                     # color='Partij minister',
-                     # color_discrete_map=minister_colors,
-                     # labels={'x': 'Minister (bevoegdheden)', 'y': 'Aantal vragen'},
-                     labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegdheden)'},
-                     title='Vragen aan ministers')
-        # # Update x-axis to reflect the sorted order
-        # fig.update_xaxes(categoryorder='total descending')
+                     y='Minister (bevoegheden + naam)',
+                     color='Partij minister',
+                     color_discrete_map=minister_colors,
+                     labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegheden + naam)'},
+                     title='Vragen aan ministers',
+                     custom_data = ['Minister', 'Partij minister']
+                     
+                     )
         
-        # Update y-axis to reflect the sorted order
         fig.update_yaxes(categoryorder='total ascending')
-        
-        # Reset height of entire graph (enlarged for 'vraagsteller)
         fig.update_layout(height=1200)
+        
+        # Update hover template with customdata
+        fig.update_traces(
+            hovertemplate="<b>%{customdata[0]}</b> (%{customdata[1]}) ontving %{x} vragen<extra></extra>",
+        )
+
         
     elif selected_axis == 'Partij parlementslid':
         grouped_data = federal_written_questions_df_input['Partij parlementslid'].value_counts().reset_index()
