@@ -100,8 +100,18 @@ minister_2_party = {
     'Thomas Dermine': 'PS', 
     'Caroline Gennez': 'Vooruit',
     'Hadja Lahbib': 'MR', 
-    'Nicole de Moor': 'cd&v'
+    'Nicole de Moor': 'cd&v',
+    
+    # Temp combinations
+    'Alexander De Croo / Sophie Wilmès / Charles Michel': 'MR',
+    'Sophie Wilmès / David Clarinval': 'MR', 
+    'Vincent Van Quickenborne / Paul Van Tigchelt': 'Open Vld', 
+    'Sarah Schlitz / Marie-Colline Leroy': 'Ecolo',
+    'Eva De Bleeker / Alexia Bertrand': 'Open Vld',
 }
+
+
+
 
 
 # =============================================================================
