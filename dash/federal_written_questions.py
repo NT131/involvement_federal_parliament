@@ -149,34 +149,35 @@ layout = html.Div(
             children=[
                 html.Div(
                     children=[
+                        # Datepicker
                         # html.H3(
                         #     "Selecteer de relevante periode.",
                         #     className="header-subsubtitle",
                         # ),
-                        # html.Div(
-                        #     children=[
-                        #         html.Div(
-                        #             children="Relevante periode", 
-                        #             className="menu-title"
-                        #         ),
-                    				# # html.Div(
-                    				# # 	# Display the most recent meeting date
-                    				# # 	id='most-recent-date-per-party',
-                    				# # 	children=f"Laatste update: {date_most_recent_meeting_per_party}",
-                    				# # 	style={'font-style': 'italic'}
-                    				# # ),
+                        html.Div(
+                            children=[
+                                html.Div(
+                                    children="Relevante periode (vraag gesteld)", 
+                                    className="menu-title"
+                                ),
+                    				# html.Div(
+                    				#  	# Display the most recent question
+                    				#  	id='most-recent-question',
+                    				#  	children=f"Meest recente vraag: {date_most_recent_question}",
+                    				#  	style={'font-style': 'italic'}
+                    				# ),
                                 
-                        #         dcc.DatePickerRange(
-                        #             id="date-range-written-questions",
-                        #             min_date_allowed=federal_written_questions_df["datum beantwoord"].min(),
-                        #             max_date_allowed=federal_written_questions_df["datum beantwoord"].max(),
-                        #             start_date=federal_written_questions_df["datum beantwoord"].min(),
-                        #             end_date=federal_written_questions_df["datum beantwoord"].max(),
-                        #             display_format='DD/MM/YYYY',  # Set the display format to 'dd/mm/yyyy' instead of default 'mm/dd/yyyy'
-                        #         ),
-                        #     ],
-                        #     className="menu-element"
-                        # ),
+                                dcc.DatePickerRange(
+                                    id="date-range-written-questions",
+                                    min_date_allowed=federal_written_questions_df["Datum ingediend"].min(),
+                                    max_date_allowed=federal_written_questions_df["Datum ingediend"].max(),
+                                    start_date=federal_written_questions_df["Datum ingediend"].min(),
+                                    end_date=federal_written_questions_df["Datum ingediend"].max(),
+                                    display_format='DD/MM/YYYY',  # Set the display format to 'dd/mm/yyyy' instead of default 'mm/dd/yyyy'
+                                ),
+                            ],
+                            className="menu-element"
+                        ),
                         
                         # # Theme filter dropdown
                         # html.Div(
@@ -285,11 +286,11 @@ layout = html.Div(
                         dash_table.DataTable(
                             id='federal-written-questions-table',
                             columns=[
-                                # {'name': 'Datum vraag gesteld', 'id': 'datum gesteld'},
+                                {'name': 'Datum vraag gesteld', 'id': 'Datum ingediend'},
                                 {'name': 'Bevoegde minister', 'id': 'Minister'},
                                 # use markdown represention to leverage clickable links of df
-                                # {'name': 'Onderwerp', 'id': 'onderwerp_markdown', 'presentation': 'markdown'}, 
-                                {'name': 'Onderwerp', 'id': 'Onderwerp'}, 
+                                {'name': 'Onderwerp', 'id': 'Onderwerp (url)', 'presentation': 'markdown'}, 
+                                # {'name': 'Onderwerp', 'id': 'Onderwerp'}, 
                             ],
                             page_size=25, #  Set the number of rows per page
                             style_table={'overflowX': 'auto'},
@@ -308,7 +309,7 @@ layout = html.Div(
                             # Allow sorting of columns
                             sort_action='native',  # Enable sorting
                             sort_mode='single',  # Allow only single column sorting
-                            # sort_by=[{'column_id': 'datum gesteld', 'direction': 'desc'}],  # Default sorting column and orientation
+                            sort_by=[{'column_id': 'Datum ingediend', 'direction': 'desc'}],  # Default sorting column and orientation
                             
                         ),
                     ], className='custom-datatable-container'),
@@ -337,18 +338,19 @@ layout = html.Div(
 # =============================================================================
 #Define function to filter data based on user selection
 def filter_data(
-        # start_date, end_date, theme_filter, 
+        start_date, end_date, 
+        # theme_filter, 
                 minister_filter, federal_written_questions_df):   
     # # Ensure correct date format
     # start_date = pd.to_datetime(start_date).date()
     # end_date = pd.to_datetime(end_date).date()
     
     
-    # # Filter DataFrame with all questions further based on the date range
-    # written_questions_filtered_df = federal_written_questions_df[
-    #      (federal_written_questions_df['datum beantwoord'] >= start_date) &
-    #      (federal_written_questions_df['datum beantwoord'] <= end_date)
-    #  ]
+    # Filter DataFrame with all questions further based on the date range
+    written_questions_filtered_df = federal_written_questions_df[
+          (federal_written_questions_df['Datum ingediend'] >= start_date) &
+          (federal_written_questions_df['Datum ingediend'] <= end_date)
+      ]
     
     # # Filter DataFrame based on the selected theme
     # if theme_filter is not None and theme_filter != 'Alle':
@@ -356,8 +358,10 @@ def filter_data(
     #         written_questions_filtered_df['thema'].isin(theme_filter)
     #     ]
     
-    ####### TEMPORARY VARIABLE ####################"
-    written_questions_filtered_df = federal_written_questions_df
+# =============================================================================
+#     ####### TEMPORARY VARIABLE ####################
+#     written_questions_filtered_df = federal_written_questions_df
+# =============================================================================
     
     # Exclude entries with the same minister value
     if minister_filter is not None and minister_filter != 'Alle':
@@ -574,8 +578,8 @@ def register_callbacks(app):
          Output('federal-written-questions-table', 'data'),
          Output('federal-datatable-info', 'children')],
         [
-         # Input('date-range-written-questions', 'start_date'),
-         # Input('date-range-written-questions', 'end_date'),
+          Input('date-range-written-questions', 'start_date'),
+          Input('date-range-written-questions', 'end_date'),
          # Input("theme-filter", "value"),
          Input("federal-minister-filter", "value"),
          Input('federal-x-axis-dropdown', 'value'),
@@ -583,12 +587,13 @@ def register_callbacks(app):
          ]
         )
     def update_display(
-            # start_date, end_date, theme_filter, 
+            start_date, end_date, 
+            # theme_filter, 
             minister_filter, 
                        selected_axis, selected_member):
         # Filter data based on user input
         written_questions_filtered_df = filter_data(
-            # start_date, end_date,
+            start_date, end_date,
             #                                         theme_filter, 
                                                     minister_filter,
                                                     federal_written_questions_df)
@@ -603,8 +608,10 @@ def register_callbacks(app):
         # Check if the selected axis is 'vraagsteller' to update DataTable
         if selected_axis == 'Parlementslid' and selected_member:
             # Filter data for the selected member
-            selected_member_data = written_questions_filtered_df[written_questions_filtered_df['Parlementslid'] == selected_member][['Minister', 'Onderwerp']]
+            selected_member_data = written_questions_filtered_df[written_questions_filtered_df['Parlementslid'] == selected_member][['Datum ingediend', 'Minister', 'Onderwerp (url)']]
 
+            # Extract only the date part from the 'Datum ingediend' column (discarding the time element)
+            selected_member_data['Datum ingediend'] = selected_member_data['Datum ingediend'].dt.date
         else:
             # If the selected axis is not 'vraagsteller', provide an empty DataFrame
             selected_member_data = pd.DataFrame()
