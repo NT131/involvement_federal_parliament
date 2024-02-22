@@ -11,6 +11,7 @@ from dash import dcc
 
 
 import federal_written_questions
+import federal_oral_questions
 
 
 app = dash.Dash(__name__, 
@@ -52,11 +53,16 @@ app.layout = html.Div([
                         dcc.Tab(
                             label='Schriftelijke vragen', 
                             children=federal_written_questions.layout),
+                        dcc.Tab(
+                            label='Mondelinge vragen en interpellaties', 
+                            children=federal_oral_questions.layout),
 
                         ]
                     ),
                 ],
             ),
+        
+
         ]
 	),
     
@@ -74,6 +80,8 @@ app.layout = html.Div([
     
 # Register callbacks for each visualization
 federal_written_questions.register_callbacks(app)
+federal_oral_questions.register_callbacks(app)
+
 
 
 # Define a callable application object for Gunicorn
@@ -82,5 +90,7 @@ application = app.server
 
 # Run app
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=5004)
+    app.run_server(host='0.0.0.0', port=5004,
+                   # debug=True
+                   )
 

@@ -17,11 +17,11 @@ import pickle
 # =============================================================================
 # Reading in relevant support data
 # =============================================================================
-# Load df with written questions and information about parties
-federal_written_questions_df = pd.read_pickle('../data/federal_details_questions_df.pkl')
+# Load df with oral questions and information about parties
+federal_oral_questions_df = pd.read_pickle('../data/oral_questions_df.pkl')
 
 # Create a default value for amount_meetings, i.e. relevant meetings
-federal_amount_questions = len(federal_written_questions_df)  # Set amount of all meetings as default, it will be updated in the callback
+federal_amount_questions_oral = len(federal_oral_questions_df)  # Set amount of all meetings as default, it will be updated in the callback
 
 # Load information about parties
 with open('../data/minister_competences_2_names_dict.pkl', 'rb') as file:
@@ -34,8 +34,8 @@ with open('../data/minister_competences_2_names_dict.pkl', 'rb') as file:
 # Extract respective party of each member
 # Group by 'Parlementslid' and construct a dictionary with 'Parlementslid' as keys and 'Partij parlementslid' as values
 parlementslid_dict = {parlementslid: partij for parlementslid, partij in zip(
-    federal_written_questions_df['Parlementslid'], 
-    federal_written_questions_df['Partij parlementslid']
+    federal_oral_questions_df['Parlementslid'], 
+    federal_oral_questions_df['Partij parlementslid']
     )}
 
 
@@ -95,11 +95,10 @@ layout = html.Div(
     children=[
         html.Div(
             children=[
-                # html.H2("Schriftelijke vragen",
+                # html.H2("Mondelinge vragen en interpellaties",
                         # className="header-subsubtitle"),
-                # html.P("Welke parlementsleden stelden het meeste schriftelijke vragen? En welke ministers kregen de meeste schriftelijke vragen te verwerken?", className="header-description"),
-                html.P("Welke parlementsleden stelden het meeste schriftelijke vragen?", className="header-description"),
-                html.P("En welke ministers kregen de meeste schriftelijke vragen te verwerken?", className="header-description"),
+                html.P("Welke parlementsleden stelden het meeste mondelinge vragen of interpellaties tijdens commissievergaderingen?", className="header-description"),
+                html.P("En welke ministers kregen de meeste mondelinge vragen te verwerken?", className="header-description"),
             ],
             className="section-header",
         ),
@@ -126,39 +125,39 @@ layout = html.Div(
                     				# ),
                                 
                                 dcc.DatePickerRange(
-                                    id="date-range-written-questions",
-                                    min_date_allowed=federal_written_questions_df["Datum ingediend"].min(),
-                                    max_date_allowed=federal_written_questions_df["Datum ingediend"].max(),
-                                    start_date=federal_written_questions_df["Datum ingediend"].min(),
-                                    end_date=federal_written_questions_df["Datum ingediend"].max(),
+                                    id="date-range-oral-questions",
+                                    min_date_allowed=federal_oral_questions_df["Datum"].min(),
+                                    max_date_allowed=federal_oral_questions_df["Datum"].max(),
+                                    start_date=federal_oral_questions_df["Datum"].min(),
+                                    end_date=federal_oral_questions_df["Datum"].max(),
                                     display_format='DD/MM/YYYY',  # Set the display format to 'dd/mm/yyyy' instead of default 'mm/dd/yyyy'
                                 ),
                             ],
                             className="menu-element"
                         ),
                         
-                        # # Theme filter dropdown
-                        # html.Div(
-                        #     children=[
-                        #         html.Div(
-                        #             children="Selecteer thema", 
-                        #             className="menu-title"
-                        #         ),
-                        #         dcc.Dropdown(
-                        #             id="theme-filter",
-                        #             options=[
-                        #                 {'label': 'Alle', 'value': 'Alle'}
-                        #                 ] + [
-                        #                 # check if theme exists to avoid empty theme option
-                        #                 {'label': theme, 'value': theme} for theme in federal_written_questions_df['thema'].unique() if theme
-                        #                 ],
-                        #             multi=True,
-                        #             value='Alle',
-                        #             placeholder="Selecteer thema's",
-                        #         ),
-                        #     ],
-                        #     className="menu-element"
-                        # ),
+                        # Commission filter dropdown
+                        html.Div(
+                            children=[
+                                html.Div(
+                                    children="Selecteer commissie", 
+                                    className="menu-title"
+                                ),
+                                dcc.Dropdown(
+                                    id="federal-commission-oral-filter",
+                                    options=[
+                                        {'label': 'Alle', 'value': 'Alle'}
+                                        ] + [
+                                        # check if commission exists to avoid empty commission option
+                                        {'label': commission, 'value': commission} for commission in federal_oral_questions_df['Commissie'].unique() if commission
+                                        ],
+                                    multi=False,
+                                    value='Alle',
+                                    placeholder="Selecteer commissies",
+                                ),
+                            ],
+                            className="menu-element"
+                        ),
                         
                         # Minister dropdown
                         html.Div(
@@ -168,12 +167,12 @@ layout = html.Div(
                                     className="menu-title"
                                 ),
                                 dcc.Dropdown(
-                                    id="federal-minister-filter",
+                                    id="federal-minister-filter-oral",
                                     # Sort ministers alphabetically
                                     options=[
                                         {'label': 'Alle', 'value': 'Alle'},
                                         ] + [
-                                        {'label': minister, 'value': minister} for minister in sorted(federal_written_questions_df['Minister'].unique())
+                                        {'label': minister, 'value': minister} for minister in sorted(federal_oral_questions_df['Minister'].unique())
                                     ],
                                     multi=False,
                                     value='Alle',
@@ -186,8 +185,8 @@ layout = html.Div(
                     		# Display impact of data selection (i.e. how many written questions are taken into account)	
                     		html.Div(
                     			children=[
-                    				html.Div(id='federal_amount_questions',
-                    						 children=f"Deze selectie resulteert in {federal_amount_questions} schriftelijke vragen."),
+                    				html.Div(id='federal_amount_questions_oral',
+                    						 children=f"Deze selectie resulteert in {federal_amount_questions_oral} schriftelijke vragen."),
                     			],
                     			className="menu-element"
                     		),
@@ -205,18 +204,18 @@ layout = html.Div(
                 children=[
                     html.Div([
                         dcc.Dropdown(
-                            id='federal-x-axis-dropdown',
+                            id='federal-oral-x-axis-dropdown',
                             options=[
                                 {'label': 'Parlementslid', 'value': 'Parlementslid'},
                                 {'label': 'Partij', 'value': 'Partij parlementslid'},
                                 {'label': 'Minister', 'value': 'Minister'},
-                                {'label': 'Minister (bevoegdheden)', 'value': 'Minister (bevoegdheden)'},
+                                # {'label': 'Commissie', 'value': 'Commissie'},
                             ],
                             value='Parlementslid', # Default value
                             style={'width': '50%'}
                         ),
                         
-                        dcc.Graph(id='federal_written_questions_graph'),
+                        dcc.Graph(id='federal_oral_questions_graph'),
                         
                         ]),
                     ]),
@@ -226,10 +225,10 @@ layout = html.Div(
                     # New Div for Dropdown and DataTable
                     html.Div([
                         dcc.Dropdown(
-                            id='federal-member-dropdown',
+                            id='federal-member-oral-dropdown',
                             # Sort options alphabetically. Important to wrap dicts in list
                             options=[
-                                {'label': member, 'value': member} for member in sorted(federal_written_questions_df['Parlementslid'].unique())
+                                {'label': member, 'value': member} for member in sorted(federal_oral_questions_df['Parlementslid'].unique())
                             ],
                             multi=False,
                             value=None, # Set default value as None to avoid table being rendered automatically 
@@ -237,15 +236,16 @@ layout = html.Div(
                             style={'width': '50%'}
                         ),
                         html.Div(
-                            id='federal-datatable-info', 
+                            id='federal-oral-datatable-info', 
                             style={'margin-top': '10px', 'font-size': '14px'}
                         ),
 
                         dash_table.DataTable(
-                            id='federal-written-questions-table',
+                            id='federal-oral-questions-table',
                             columns=[
-                                {'name': 'Datum vraag gesteld', 'id': 'Datum ingediend'},
+                                {'name': 'Datum', 'id': 'Datum'},
                                 {'name': 'Bevoegde minister', 'id': 'Minister'},
+                                {'name': 'Commissie', 'id': 'Commissie'},
                                 # use markdown represention to leverage clickable links of df
                                 {'name': 'Onderwerp', 'id': 'Onderwerp (url)', 'presentation': 'markdown'}, 
                                 # {'name': 'Onderwerp', 'id': 'Onderwerp'}, 
@@ -267,7 +267,7 @@ layout = html.Div(
                             # Allow sorting of columns
                             sort_action='native',  # Enable sorting
                             sort_mode='single',  # Allow only single column sorting
-                            sort_by=[{'column_id': 'Datum ingediend', 'direction': 'desc'}],  # Default sorting column and orientation
+                            sort_by=[{'column_id': 'Datum', 'direction': 'desc'}],  # Default sorting column and orientation
                             
                         ),
                     ], className='custom-datatable-container'),
@@ -297,44 +297,45 @@ layout = html.Div(
 #Define function to filter data based on user selection
 def filter_data(
         start_date, end_date, 
-        # theme_filter, 
-                minister_filter, federal_written_questions_df):   
-    # # Ensure correct date format
-    # start_date = pd.to_datetime(start_date).date()
-    # end_date = pd.to_datetime(end_date).date()
+        commission_filter, 
+                minister_filter, federal_oral_questions_df):   
+    # Ensure correct date format
+    start_date = pd.to_datetime(start_date).date()
+    end_date = pd.to_datetime(end_date).date()
     
     
     # Filter DataFrame with all questions further based on the date range
-    written_questions_filtered_df = federal_written_questions_df[
-          (federal_written_questions_df['Datum ingediend'] >= start_date) &
-          (federal_written_questions_df['Datum ingediend'] <= end_date)
+    oral_questions_filtered_df = federal_oral_questions_df[
+          (federal_oral_questions_df['Datum'] >= start_date) &
+          (federal_oral_questions_df['Datum'] <= end_date)
       ]
     
-    # # Filter DataFrame based on the selected theme
-    # if theme_filter is not None and theme_filter != 'Alle':
-    #     written_questions_filtered_df = written_questions_filtered_df[
-    #         written_questions_filtered_df['thema'].isin(theme_filter)
-    #     ]
+    # Filter DataFrame based on the selected commission
+    # Encapsulate commission_filter in brackets to avoid errors when running isin(): requires list
+    if commission_filter is not None and commission_filter != 'Alle':
+        oral_questions_filtered_df = oral_questions_filtered_df[
+            oral_questions_filtered_df['Commissie'].isin([commission_filter])
+        ]
     
 # =============================================================================
 #     ####### TEMPORARY VARIABLE ####################
-#     written_questions_filtered_df = federal_written_questions_df
+#     oral_questions_filtered_df = federal_oral_questions_df
 # =============================================================================
     
     # Exclude entries with the same minister value
     if minister_filter is not None and minister_filter != 'Alle':
-        written_questions_filtered_df = written_questions_filtered_df[
-            written_questions_filtered_df['Minister'] == minister_filter
+        oral_questions_filtered_df = oral_questions_filtered_df[
+            oral_questions_filtered_df['Minister'] == minister_filter
         ]
         
-    return written_questions_filtered_df
+    return oral_questions_filtered_df
 
 
-def update_chart(selected_axis, federal_written_questions_df_input):
+def update_chart(selected_axis, federal_oral_questions_df_input):
   
     if selected_axis == 'Parlementslid':      
         # Create a DataFrame with member, count, and party columns
-        grouped_data = federal_written_questions_df_input['Parlementslid'].value_counts().reset_index()
+        grouped_data = federal_oral_questions_df_input['Parlementslid'].value_counts().reset_index()
         grouped_data.columns = ['Parlementslid', 'Aantal vragen']
         
         # print(len(grouped_data))
@@ -394,7 +395,7 @@ def update_chart(selected_axis, federal_written_questions_df_input):
 
 
     elif selected_axis == 'Minister':
-        grouped_data = federal_written_questions_df_input['Minister'].value_counts().reset_index()
+        grouped_data = federal_oral_questions_df_input['Minister'].value_counts().reset_index()
         grouped_data.columns = ['Minister', 'Aantal vragen']
         grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
         fig = px.bar(grouped_data,
@@ -417,44 +418,44 @@ def update_chart(selected_axis, federal_written_questions_df_input):
             hovertemplate="<b>%{x}</b> (%{customdata[0]}) ontving %{y} vragen<extra></extra>",
         )
         
-    elif selected_axis == 'Minister (bevoegdheden)':
-        grouped_data = federal_written_questions_df_input['Minister (bevoegdheden)'].value_counts().reset_index()
-        grouped_data.columns = ['Minister (bevoegdheden)', 'Aantal vragen']
+    # elif selected_axis == 'Minister (bevoegdheden)':
+    #     grouped_data = federal_oral_questions_df_input['Minister (bevoegdheden)'].value_counts().reset_index()
+    #     grouped_data.columns = ['Minister (bevoegdheden)', 'Aantal vragen']
         
-        grouped_data['Minister'] = grouped_data['Minister (bevoegdheden)'].map(minister_competences_2_names_dict)
-        grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
+    #     grouped_data['Minister'] = grouped_data['Minister (bevoegdheden)'].map(minister_competences_2_names_dict)
+    #     grouped_data['Partij minister'] = grouped_data['Minister'].map(minister_2_party)
         
-        # Create a new column combining 'Minister (bevoegdheden)' and 'Minister'
-        grouped_data['Minister (bevoegheden + naam)'] = grouped_data['Minister (bevoegdheden)'] + ' (' + grouped_data['Minister'] + ')'
+    #     # Create a new column combining 'Minister (bevoegdheden)' and 'Minister'
+    #     grouped_data['Minister (bevoegheden + naam)'] = grouped_data['Minister (bevoegdheden)'] + ' (' + grouped_data['Minister'] + ')'
         
-        # # Construct hover text using list comprehension
-        # hover_text = [
-        #     f"<b>{minister}</b> ({partij}) ontving {aantal} aantal vragen<extra></extra>"
-        #     for minister, partij, aantal in zip(grouped_data['Minister (bevoegheden + naam)'], grouped_data['Partij minister'], grouped_data['Aantal vragen'])
-        # ]
+    #     # # Construct hover text using list comprehension
+    #     # hover_text = [
+    #     #     f"<b>{minister}</b> ({partij}) ontving {aantal} aantal vragen<extra></extra>"
+    #     #     for minister, partij, aantal in zip(grouped_data['Minister (bevoegheden + naam)'], grouped_data['Partij minister'], grouped_data['Aantal vragen'])
+    #     # ]
         
-        fig = px.bar(grouped_data,
-                     x='Aantal vragen',
-                     y='Minister (bevoegheden + naam)',
-                     color='Partij minister',
-                     color_discrete_map=minister_colors,
-                     labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegheden + naam)'},
-                     title='Vragen aan ministers',
-                     custom_data = ['Minister', 'Partij minister']   
-                     )
+    #     fig = px.bar(grouped_data,
+    #                  x='Aantal vragen',
+    #                  y='Minister (bevoegheden + naam)',
+    #                  color='Partij minister',
+    #                  color_discrete_map=minister_colors,
+    #                  labels={'x': 'Aantal vragen', 'y': 'Minister (bevoegheden + naam)'},
+    #                  title='Vragen aan ministers',
+    #                  custom_data = ['Minister', 'Partij minister']   
+    #                  )
         
-        fig.update_yaxes(title='Ministers (bevoegdheden)', # Modify label of y-axis
-                         categoryorder='total ascending') # Modify sorting order
-        fig.update_layout(height=1200)
+    #     fig.update_yaxes(title='Ministers (bevoegdheden)', # Modify label of y-axis
+    #                      categoryorder='total ascending') # Modify sorting order
+    #     fig.update_layout(height=1200)
         
-        # Update hover template with customdata
-        fig.update_traces(
-            hovertemplate="<b>%{customdata[0]}</b> (%{customdata[1]}) ontving %{x} vragen<extra></extra>",
-        )
+    #     # Update hover template with customdata
+    #     fig.update_traces(
+    #         hovertemplate="<b>%{customdata[0]}</b> (%{customdata[1]}) ontving %{x} vragen<extra></extra>",
+    #     )
 
         
     elif selected_axis == 'Partij parlementslid':
-        grouped_data = federal_written_questions_df_input['Partij parlementslid'].value_counts().reset_index()
+        grouped_data = federal_oral_questions_df_input['Partij parlementslid'].value_counts().reset_index()
         grouped_data.columns = ['Partij parlementslid', 'Aantal vragen']
         fig = px.bar(grouped_data,
                      x='Partij parlementslid',
@@ -474,7 +475,7 @@ def update_chart(selected_axis, federal_written_questions_df_input):
         )  
         
     # elif selected_axis == 'thema':
-    #     grouped_data = federal_written_questions_df_input['thema'].value_counts().reset_index()
+    #     grouped_data = federal_oral_questions_df_input['thema'].value_counts().reset_index()
     #     grouped_data.columns = ['Thema', 'Aantal vragen']
     #     fig = px.bar(grouped_data,
     #                  x='Aantal vragen',
@@ -498,15 +499,15 @@ def update_chart(selected_axis, federal_written_questions_df_input):
 
 
 
-# def answer_term_bar_chart(federal_written_questions_df_input, num_bins=20):
+# def answer_term_bar_chart(federal_oral_questions_df_input, num_bins=20):
 #     # Ensure 'termijn antwoord (werkdagen)' is converted to numeric
-#     federal_written_questions_df_input['termijn antwoord (werkdagen)'] = pd.to_numeric(federal_written_questions_df_input['termijn antwoord (werkdagen)'], errors='coerce')
+#     federal_oral_questions_df_input['termijn antwoord (werkdagen)'] = pd.to_numeric(federal_oral_questions_df_input['termijn antwoord (werkdagen)'], errors='coerce')
 
 #     # Create bins using pd.cut
-#     federal_written_questions_df_input['termijn bins'] = pd.cut(federal_written_questions_df_input['termijn antwoord (werkdagen)'], bins=num_bins)
+#     federal_oral_questions_df_input['termijn bins'] = pd.cut(federal_oral_questions_df_input['termijn antwoord (werkdagen)'], bins=num_bins)
 
 #     # Group by the bins and count the number of questions in each bin
-#     bin_counts = federal_written_questions_df_input.groupby('termijn bins').size().reset_index(name='Number of Questions')
+#     bin_counts = federal_oral_questions_df_input.groupby('termijn bins').size().reset_index(name='Number of Questions')
 
 #     # Create the bar chart using px.bar
 #     fig = px.bar(
@@ -530,52 +531,52 @@ def update_chart(selected_axis, federal_written_questions_df_input):
 #Create function to load app in integrated appraoch
 def register_callbacks(app):
     @app.callback(
-        [Output('federal_amount_questions', 'children'),
-         Output('federal_written_questions_graph', 'figure'),
+        [Output('federal_amount_questions_oral', 'children'),
+         Output('federal_oral_questions_graph', 'figure'),
          # Output('question-duration-bar-plot', 'figure'),
-         Output('federal-written-questions-table', 'data'),
-         Output('federal-datatable-info', 'children')],
+         Output('federal-oral-questions-table', 'data'),
+         Output('federal-oral-datatable-info', 'children')],
         [
-          Input('date-range-written-questions', 'start_date'),
-          Input('date-range-written-questions', 'end_date'),
-         # Input("theme-filter", "value"),
-         Input("federal-minister-filter", "value"),
-         Input('federal-x-axis-dropdown', 'value'),
-         Input('federal-member-dropdown', 'value')
+          Input('date-range-oral-questions', 'start_date'),
+          Input('date-range-oral-questions', 'end_date'),
+          Input('federal-commission-oral-filter', 'value'),
+         Input("federal-minister-filter-oral", "value"),
+         Input('federal-oral-x-axis-dropdown', 'value'),
+         Input('federal-member-oral-dropdown', 'value')
          ]
         )
     def update_display(
             start_date, end_date, 
-            # theme_filter, 
+            commission_filter, 
             minister_filter, 
                        selected_axis, selected_member):
         # Filter data based on user input
-        written_questions_filtered_df = filter_data(
+        oral_questions_filtered_df = filter_data(
             start_date, end_date,
-            #                                         theme_filter, 
+                                                    commission_filter, 
                                                     minister_filter,
-                                                    federal_written_questions_df)
+                                                    federal_oral_questions_df)
         
         # Create graph using user selected axis and filtered df
-        written_questions_graph = update_chart(selected_axis, 
-                                               written_questions_filtered_df)
+        federal_oral_questions_graph = update_chart(selected_axis, 
+                                               oral_questions_filtered_df)
           
         # # Create graph for answering term
-        # duration_answer_graph = answer_term_bar_chart(written_questions_filtered_df)
+        # duration_answer_graph = answer_term_bar_chart(oral_questions_filtered_df)
         
         # Check if the selected axis is 'vraagsteller' to update DataTable
         if selected_axis == 'Parlementslid' and selected_member:
             # Filter data for the selected member
-            selected_member_data = written_questions_filtered_df[written_questions_filtered_df['Parlementslid'] == selected_member][['Datum ingediend', 'Minister', 'Onderwerp (url)']]
+            selected_member_data = oral_questions_filtered_df[oral_questions_filtered_df['Parlementslid'] == selected_member][['Datum', 'Minister', 'Commissie', 'Onderwerp (url)']]
 
-            # Extract only the date part from the 'Datum ingediend' column (discarding the time element)
-            selected_member_data['Datum ingediend'] = selected_member_data['Datum ingediend'].dt.date
+            # # Extract only the date part from the 'Datum ingediend' column (discarding the time element)
+            # selected_member_data['Datum'] = selected_member_data['Datum'].dt.date
         else:
             # If the selected axis is not 'vraagsteller', provide an empty DataFrame
             selected_member_data = pd.DataFrame()
          
-        return [f"Deze selectie resulteert in {len(written_questions_filtered_df)} relevante schriftelijke vragen.", # Use text formatting to allow easier build of layout
-                written_questions_graph,
+        return [f"Deze selectie resulteert in {len(oral_questions_filtered_df)} relevante mondelinge vragen of interpellaties.", # Use text formatting to allow easier build of layout
+                federal_oral_questions_graph,
                 # duration_answer_graph,
                 selected_member_data.to_dict('records'),
                 f"Dit parlementslid stelde {len(selected_member_data)} vragen."]
