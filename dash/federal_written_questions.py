@@ -183,16 +183,19 @@ layout = html.Div(
                             className="menu-element"
                         ),
                         
-                    		# Display impact of data selection (i.e. how many written questions are taken into account)	
-                    		html.Div(
-                    			children=[
-                    				html.Div(id='federal_amount_questions',
-                    						 children=f"Deze selectie resulteert in {federal_amount_questions} schriftelijke vragen."),
-                    			],
-                    			className="menu-element"
-                    		),
+
                     ], 
                     className="flex-container",
+            		),
+                    
+          		# Display impact of data selection (i.e. how many written questions are taken into account)	
+          		html.Div(
+          			children=[
+          				html.Div(id='federal_amount_questions',
+          						 children=f"Deze selectie resulteert in {federal_amount_questions} schriftelijke vragen."),
+          			],
+          			className="menu-element"
+
                 ),
             ],
             className="wrapper",
