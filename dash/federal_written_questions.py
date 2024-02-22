@@ -207,7 +207,12 @@ layout = html.Div(
                 label='Algemeen',
                 children=[
                     html.Div([
-                        dcc.Dropdown(
+                        html.Div(
+                            children="Geen aantal vragen weer per:", 
+                            className="menu-title"
+                        ),
+                        dcc.RadioItems(
+                        # dcc.Dropdown(
                             id='federal-x-axis-dropdown',
                             options=[
                                 {'label': 'Parlementslid', 'value': 'Parlementslid'},

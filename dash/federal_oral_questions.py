@@ -136,28 +136,7 @@ layout = html.Div(
                             className="menu-element"
                         ),
                         
-                        # Commission filter dropdown
-                        html.Div(
-                            children=[
-                                html.Div(
-                                    children="Selecteer commissie", 
-                                    className="menu-title"
-                                ),
-                                dcc.Dropdown(
-                                    id="federal-commission-oral-filter",
-                                    options=[
-                                        {'label': 'Alle', 'value': 'Alle'}
-                                        ] + [
-                                        # check if commission exists to avoid empty commission option
-                                        {'label': commission, 'value': commission} for commission in federal_oral_questions_df['Commissie'].unique() if commission
-                                        ],
-                                    multi=False,
-                                    value='Alle',
-                                    placeholder="Selecteer commissies",
-                                ),
-                            ],
-                            className="menu-element"
-                        ),
+  
                         
                         # Minister dropdown
                         html.Div(
@@ -186,6 +165,32 @@ layout = html.Div(
                     ], 
                     className="flex-container",
                 ),
+
+                  
+                # Commission filter dropdown
+                html.Div(
+                    children=[
+                        html.Div(
+                            children="Selecteer commissie", 
+                            className="menu-title"
+                        ),
+                        dcc.Dropdown(
+                            id="federal-commission-oral-filter",
+                            options=[
+                                {'label': 'Alle', 'value': 'Alle'}
+                                ] + [
+                                # check if commission exists to avoid empty commission option
+                                {'label': commission, 'value': commission} for commission in federal_oral_questions_df['Commissie'].unique() if commission
+                                ],
+                            multi=False,
+                            value='Alle',
+                            placeholder="Selecteer commissies",
+                            optionHeight=70, # Ensure actual height of options suffices to allow wrapping of longer commisison names (default 35). 70 allows 3 lines for wrapping
+                        ),
+                    ],
+                    className="menu-element"
+                ),
+                                    
           		# Display impact of data selection (i.e. how many written questions are taken into account)	
           		html.Div(
           			children=[
@@ -203,8 +208,13 @@ layout = html.Div(
             dcc.Tab(
                 label='Algemeen',
                 children=[
+                    html.Div(
+                        children="Geen aantal vragen weer per:", 
+                        className="menu-title"
+                    ),
                     html.Div([
-                        dcc.Dropdown(
+                        # dcc.Dropdown(
+                        dcc.RadioItems(
                             id='federal-oral-x-axis-dropdown',
                             options=[
                                 {'label': 'Parlementslid', 'value': 'Parlementslid'},

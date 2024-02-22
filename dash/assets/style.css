@@ -254,12 +254,49 @@ body {
 }
 
 /* Set dimensions of dropdowns */
-.section-chart .menu-element .dropdown .Select-control {
+/*
+.menu-element .dropdown .Select-control {
+    /*min-width: 800px; /* Adjust the minimum width for the dropdown when active 
+    width: auto; /* Reset fixed width 
+	min-height: 38px; /* Allow the height to adjust based on content 
+    height: auto; /* Reset the fixed height 
+}
+*/
+
+/* Adjust width of dropdown menus */
+.menu-element .dropdown .Select-control {
+    width: 100%; /* Set dropdown width to fill the available space */
+    /*min-width: 200px; /* Set a minimum width to prevent excessive shrinking */
     min-width: 800px; /* Adjust the minimum width for the dropdown when active */
-    width: auto; /* Reset fixed width */
-	min-height: 38px; /* Allow the height to adjust based on content */
     height: auto; /* Reset the fixed height */
 }
+
+/* Set dimensions of dropdowns 
+.section-chart .menu-element .dropdown .Select-control {
+    /*min-width: 800px; /* Adjust the minimum width for the dropdown when active 
+    width: auto; /* Reset fixed width 
+	min-height: 38px; /* Allow the height to adjust based on content 
+    height: auto; /* Reset the fixed height 
+}
+/*
+
+
+
+/* Adjust width of dropdown menu entries */
+.menu-element .dropdown .Select-menu-outer {
+    width: 100%; /* Allow dropdown menu entry width to fill the available space  */
+    height: auto; 
+}
+
+
+
+
+/* Adjust width of dropdown menu entries 
+.section-chart .menu-element .dropdown .Select-menu-outer {
+    width: auto; /* Allow dropdown menu entry width to adjust based on content 
+}
+*/
+
 /* Ensure graph titles in pie charts are wrapped */
 .graph-title {
     word-wrap: break-word;
@@ -296,7 +333,7 @@ body {
     margin: auto;
 }
 
-/* Show selector menus of tab Written questions next to each other*/
+/* Show selector menus next to each other*/
 .flex-container {
     display: flex;
 }
